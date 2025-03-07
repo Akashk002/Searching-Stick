@@ -3,7 +3,7 @@
 #include "Event/EventService.h"
 #include "UI/UIService.h"
 #include "Sound/SoundService.h"
-#include "GamePlay/GameplayService.h"
+#include "Gameplay/GameplayService.h"
 
 namespace Global
 {
@@ -34,6 +34,6 @@ namespace Global
         Sound::SoundService* getSoundService();
         UI::UIService* getUIService();
         Gameplay::GameplayService* getGameplayService();
-        
+
     };
 }

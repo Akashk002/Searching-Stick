@@ -1,3 +1,4 @@
+﻿#pragma once﻿
 #include "Gameplay/GameplayView.h"
 #include "Gameplay/GameplayController.h"
 #include "Global/ServiceLocator.h"

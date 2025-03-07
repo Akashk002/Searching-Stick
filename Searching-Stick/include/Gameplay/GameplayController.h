@@ -2,27 +2,24 @@
 
 namespace Gameplay
 {
+	class GameplayView;
 
-    class GameplayView;
+	class GameplayController
+	{
+	private:
 
-    class GameplayController
-    {
-    private:
+		GameplayView* gameplay_view;
 
-        GameplayView* gameplay_view;
+		void destroy();
+	public:
 
+		GameplayController();
+		~GameplayController();
 
-        void destroy();
+		void initialize();
+		void render();
+		void update();
 
-    public:
-        GameplayController();
-        ~GameplayController();
-
-        void initialize();
-        void update();
-        void render();
-
-        void reset();
-
-    };
+		void reset();
+	};
 }

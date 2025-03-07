@@ -39,7 +39,6 @@ namespace Global
 		event_service->initialize();
 		ui_service->initialize();
 		gameplay_service->initialize();
-
 	}
 
 	void ServiceLocator::update()
@@ -88,5 +87,5 @@ namespace Global
 
 	GameplayService* ServiceLocator::getGameplayService() { return gameplay_service; }
 
-	
+
 }

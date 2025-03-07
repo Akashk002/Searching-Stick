@@ -1,22 +1,23 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 
 namespace Gameplay
 {
-    namespace Collection {
+	namespace Collection
+	{
+		class StickCollectionView
+		{
+		private:
 
- 
-        class StickCollectionView {
+			void destroy();
 
-        public:
+		public:
+			StickCollectionView();
+			~StickCollectionView();
 
-            StickCollectionView();
-            ~StickCollectionView();
+			void initialize();
+			void render();
+			void update();
 
-            void initialize();
-            void update();
-            void render();
-        };
-
-    }
+		};
+	}
 }
