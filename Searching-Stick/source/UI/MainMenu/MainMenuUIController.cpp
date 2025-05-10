@@ -1,123 +1,202 @@
-#include "UI/MainMenu/MainMenuUIController.h"
-#include "Main/GameService.h"
-#include "Graphics/GraphicService.h"
-#include "Sound/SoundService.h"
-#include "Event/EventService.h"
+#include "UI/GameplayUI/GameplayUIController.h"
 #include "Global/Config.h"
 #include "Global/ServiceLocator.h"
+#include "Gameplay/GameplayService.h"
+#include "Sound/SoundService.h"
+#include "Main/GameService.h"
+#include "Gameplay/StickCollection/StickCollectionModel.h"
 
 namespace UI
 {
-    namespace MainMenu
+    namespace GameplayUI
     {
-        using namespace Global;
         using namespace Main;
-        using namespace UIElement;
         using namespace Sound;
-        using namespace Graphics;
+        using namespace UIElement;
+        using namespace Global;
+        using namespace Gameplay;
+        using namespace Collection;
 
-        MainMenuUIController::MainMenuUIController()
+        GameplayUIController::GameplayUIController()
         {
-            createImage();
-            createButtons();
+            createButton();
+            createTexts();
         }
 
-        MainMenuUIController::~MainMenuUIController()
+        GameplayUIController::~GameplayUIController()
         {
             destroy();
         }
 
-        void MainMenuUIController::initialize()
+        void GameplayUIController::initialize()
         {
-            initializeBackgroundImage();
-            initializeButtons();
+            initializeButton();
+            initializeTexts();
+            updateSearchTypeText();
+        }
+
+        void GameplayUIController::createButton()
+        {
+            menu_button = new ButtonView();
+        }
+
+        void GameplayUIController::createTexts()
+        {
+            search_type_text = new TextView();
+            number_of_comparisons_text = new TextView();
+            number_of_array_access_text = new TextView();
+
+            num_sticks_text = new TextView();
+            delay_text = new TextView();
+            time_complexity_text = new TextView();
+
+        }
+
+        void GameplayUIController::initializeButton()
+        {
+            menu_button->initialize("Menu Button",
+                Config::menu_button_large_texture_path,
+                menu_button_width, menu_button_height,
+                sf::Vector2f(menu_button_x_position, menu_button_y_position));
+
             registerButtonCallback();
         }
 
-        void MainMenuUIController::createImage()
+        void GameplayUIController::initializeTexts()
         {
-            background_image = new ImageView();
+            search_type_text->initialize("Search Type  :  Linear Search", sf::Vector2f(search_type_text_x_position, text_y_position), FontType::BUBBLE_BOBBLE, font_size);
+            number_of_comparisons_text->initialize("Comparisons  :  0", sf::Vector2f(comparisons_text_x_position, text_y_position), FontType::BUBBLE_BOBBLE, font_size);
+            number_of_array_access_text->initialize("Array Access  :  0", sf::Vector2f(array_access_text_x_position, text_y_position), FontType::BUBBLE_BOBBLE, font_size);
+
+
+            num_sticks_text->initialize("Number of Sticks  :  0", sf::Vector2f(num_sticks_text_x_position, text_y_pos2), FontType::BUBBLE_BOBBLE, font_size);
+
+
+            delay_text->initialize("Delay  :  0 ms", sf::Vector2f(delay_text_x_position, text_y_pos2), FontType::BUBBLE_BOBBLE, font_size);
+
+
+            time_complexity_text->initialize("Time Complexity  :  O(n)", sf::Vector2f(time_complexity_text_x_position, text_y_pos2), FontType::BUBBLE_BOBBLE, font_size);
         }
 
-        void MainMenuUIController::createButtons()
+        void GameplayUIController::update()
         {
-            linear_search_button = new ButtonView();
-            binary_search_button = new ButtonView();
-            quit_button = new ButtonView();
+            menu_button->update();
+            updateSearchTypeText();
+            updateComparisonsText();
+            updateArrayAccessText();
+
+            updateNumberOfSticksText();
+            updateDelayText();
+            updateTimeComplexityText();
+
         }
 
-        void MainMenuUIController::initializeBackgroundImage()
+        void GameplayUIController::render()
         {
-            GraphicService* graphic_service = ServiceLocator::getInstance()->getGraphicService();
+            menu_button->render();
+            search_type_text->render();
+            number_of_comparisons_text->render();
+            number_of_array_access_text->render();
 
-            background_image->initialize(Config::background_texture_path, graphic_service->getReferenceResolution().x, graphic_service->getReferenceResolution().y, sf::Vector2f(0, 0));
-            background_image->setImageAlpha(background_alpha);
+            num_sticks_text->render();
+            delay_text->render();
+            time_complexity_text->render();
         }
 
-        void MainMenuUIController::initializeButtons()
+        void GameplayUIController::show()
         {
-            linear_search_button->initialize("Linear Search Button", Config::linear_search_button_texture_path, button_width, button_height, sf::Vector2f(0, linear_search_button_y_position));
-            binary_search_button->initialize("Binary Search Button", Config::binary_search_button_texture_path, button_width, button_height, sf::Vector2f(0, binary_search_button_y_position));
-            quit_button->initialize("Quit Button", Config::quit_button_texture_path, button_width, button_height, sf::Vector2f(0, quit_button_y_position));
+            menu_button->show();
+            search_type_text->show();
+            number_of_comparisons_text->show();
+            number_of_array_access_text->show();
 
-            linear_search_button->setCentreAlinged();
-            binary_search_button->setCentreAlinged();
-            quit_button->setCentreAlinged();
+            num_sticks_text->show();
+            delay_text->show();
+            time_complexity_text->show();
         }
 
-        void MainMenuUIController::registerButtonCallback()
+        void GameplayUIController::updateSearchTypeText()
         {
-            linear_search_button->registerCallbackFuntion(std::bind(&MainMenuUIController::linearSearchButtonCallback, this));
-            binary_search_button->registerCallbackFuntion(std::bind(&MainMenuUIController::binarySearchButtonCallback, this));
-            quit_button->registerCallbackFuntion(std::bind(&MainMenuUIController::quitButtonCallback, this));
+            Gameplay::Collection::SearchType new_search_type = ServiceLocator::getInstance()->getGameplayService()->getCurrentSearchType();
+
+
+            switch (new_search_type)
+            {
+            case::Gameplay::Collection::SearchType::LINEAR_SEARCH:
+                search_type_text->setText("Linear Search");
+                break;
+
+                /*case::Gameplay::SearchType::BINARY_SEARCH:
+                    search_type_text->setText("Binary Search");
+                    break;*/
+            }
+            search_type_text->update();
+
         }
 
-        void MainMenuUIController::linearSearchButtonCallback()
+        void GameplayUIController::updateComparisonsText()
         {
-            // GameState will change to gameplay state.
+            int number_of_comparisons = ServiceLocator::getInstance()->getGameplayService()->getNumberOfComparisons();;
+            sf::String comparisons_string = "Comparisons  :  " + std::to_string(number_of_comparisons);
+
+            number_of_comparisons_text->setText(comparisons_string);
+            number_of_comparisons_text->update();
+        }
+
+        void GameplayUIController::updateArrayAccessText()
+        {
+            int number_of_array_access = ServiceLocator::getInstance()->getGameplayService()->getNumberOfArrayAccess();;
+            sf::String array_access_string = "Array Access  :  " + std::to_string(number_of_array_access);
+
+            number_of_array_access_text->setText(array_access_string);
+            number_of_array_access_text->update();
+        }
+
+        void GameplayUIController::updateNumberOfSticksText()
+        {
+            int num_sticks = ServiceLocator::getInstance()->getGameplayService()->getNumberOfSticks();
+            sf::String sticks_string = "Number of Sticks  :  " + std::to_string(num_sticks);
+
+            num_sticks_text->setText(sticks_string);
+            num_sticks_text->update();
+        }
+
+        void GameplayUIController::updateDelayText()
+        {
+            int delay_in_milliseconds = ServiceLocator::getInstance()->getGameplayService()->getDelayMilliseconds();
+            sf::String delay_string = "Delay (ms)  :  " + std::to_string(delay_in_milliseconds);
+
+            delay_text->setText(delay_string);
+            delay_text->update();
+        }
+
+        void GameplayUIController::updateTimeComplexityText()
+        {
+            sf::String time_complexity = ServiceLocator::getInstance()->getGameplayService()->getTimeComplexity();
+            sf::String time_complexity_string = "Time Complexity  :  " + time_complexity;
+
+            time_complexity_text->setText(time_complexity_string);
+            time_complexity_text->update();
+        }
+
+        void GameplayUIController::menuButtonCallback()
+        {
             ServiceLocator::getInstance()->getSoundService()->playSound(SoundType::BUTTON_CLICK);
+            ServiceLocator::getInstance()->getGameplayService()->reset();
+            GameService::setGameState(GameState::MAIN_MENU);
         }
 
-        void MainMenuUIController::binarySearchButtonCallback()
+        void GameplayUIController::registerButtonCallback()
         {
-            ServiceLocator::getInstance()->getSoundService()->playSound(SoundType::BUTTON_CLICK);
+            menu_button->registerCallbackFuntion(std::bind(&GameplayUIController::menuButtonCallback, this));
         }
 
-        void MainMenuUIController::quitButtonCallback()
+        void GameplayUIController::destroy()
         {
-            ServiceLocator::getInstance()->getGraphicService()->getGameWindow()->close();
-        }
-
-        void MainMenuUIController::update()
-        {
-            background_image->update();
-            linear_search_button->update();
-            binary_search_button->update();
-            quit_button->update();
-        }
-
-        void MainMenuUIController::render()
-        {
-            background_image->render();
-            linear_search_button->render();
-            binary_search_button->render();
-            quit_button->render();
-        }
-
-        void MainMenuUIController::show()
-        {
-            background_image->show();
-            linear_search_button->show();
-            binary_search_button->show();
-            quit_button->show();
-        }
-
-        void MainMenuUIController::destroy()
-        {
-            delete (linear_search_button);
-            delete (binary_search_button);
-            delete (quit_button);
-            delete (background_image);
+            delete (menu_button);
+            delete (search_type_text);
+            delete (number_of_comparisons_text);
+            delete (number_of_array_access_text);
         }
     }
 }
